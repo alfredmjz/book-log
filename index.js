@@ -148,19 +148,25 @@ const resolvers = {
 			return returnedAuthors.length;
 		},
 		allBooks: async (root, args) => {
-			const returnedBooks = await Book.find({});
-			return returnedBooks;
+			if (!args.author && !args.genre) {
+				const returnedBooks = await Book.find({});
+				return returnedBooks;
+			}
 
-			// if (args.author && args.genre) {
-			// 	return books.filter((book) => book.author === args.author && book.genres.find((g) => args.genre === g));
-			// }
-			// if (args.author) {
-			// 	return books.filter((book) => (book.author === args.author ? book : null));
-			// }
-			// if (args.genre) {
-			// 	return books.filter((book) => book.genres.find((g) => args.genre === g));
-			// }
-			// return books;
+			const returnedAuthor = await Author.findOne({ name: args.author });
+			if (args.author && args.genre) {
+				const returnedBooks = await Book.find({ author: returnedAuthor._id, genres: { $in: [args.genre] } });
+				return returnedBooks;
+			}
+			if (args.author) {
+				const returnedBooks = await Book.find({ author: returnedAuthor._id });
+				return returnedBooks;
+			}
+			if (args.genre) {
+				const returnedBooks = await Book.find({ genres: { $in: [args.genre] } });
+				return returnedBooks;
+			}
+			return null;
 		},
 		allAuthors: async () => {
 			const response = await Author.find({});
@@ -181,6 +187,15 @@ const resolvers = {
 	},
 	Mutation: {
 		addBook: async (root, args) => {
+			if (args.name.length <= 3) {
+				throw new UserInputError("Author name must be more than 3 characters", {
+					invalidArgs: args.name,
+				});
+			} else if (args.published / 1000 < 1 || args.setBornTo / 1000 > 9) {
+				throw new UserInputError("Published year must be exactly 4 digits", {
+					invalidArgs: args.setBornTo,
+				});
+			}
 			const exist = await Author.findOne({ name: args.author });
 			try {
 				if (!exist) {
@@ -200,6 +215,16 @@ const resolvers = {
 			}
 		},
 		editAuthor: async (root, args) => {
+			if (args.name.length <= 3) {
+				throw new UserInputError("Author name must be more than 3 characters", {
+					invalidArgs: args.name,
+				});
+			} else if (args.setBornTo / 1000 < 1 || args.setBornTo / 1000 > 9) {
+				throw new UserInputError("Born date must be exactly 4 digits", {
+					invalidArgs: args.setBornTo,
+				});
+			}
+
 			try {
 				const updateAuthor = await Author.findOneAndUpdate({ name: args.name }, { born: args.setBornTo });
 				if (!updateAuthor) {
