@@ -9,6 +9,7 @@ const App = () => {
 	const [page, setPage] = useState("authors");
 	const authors = useQuery(GET_AUTHORS);
 	const books = useQuery(GET_BOOKS);
+	console.log(books);
 
 	return (
 		<div>
