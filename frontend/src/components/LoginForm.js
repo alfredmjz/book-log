@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useMutation } from "@apollo/client";
 import { LOGIN } from "../query";
 
-const LoginForm = ({ setToken, setPage }) => {
+const LoginForm = (props) => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 
@@ -15,15 +15,18 @@ const LoginForm = ({ setToken, setPage }) => {
 	useEffect(() => {
 		if (result.data) {
 			const token = result.data.login.value;
-			setToken(token);
+			props.setToken(token);
 			localStorage.setItem("booklog-user-token", token);
 		}
 	}, [result.data]); // eslint-disable-line
 
+	if (!props.show) {
+		return null;
+	}
 	const submit = async (event) => {
 		event.preventDefault();
 		login({ variables: { username, password } });
-		setPage("authors");
+		props.setPage("authors");
 	};
 
 	return (
@@ -33,7 +36,7 @@ const LoginForm = ({ setToken, setPage }) => {
 					username <input value={username} onChange={({ target }) => setUsername(target.value)} />
 				</div>
 				<div>
-					password <input type="password" value={password} onChange={({ target }) => setPassword(target.value)} />
+					password <input value={password} onChange={({ target }) => setPassword(target.value)} />
 				</div>
 				<button type="submit">login</button>
 			</form>

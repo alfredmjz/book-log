@@ -9,8 +9,22 @@ import LoginForm from "./components/LoginForm";
 const App = () => {
 	const [page, setPage] = useState("authors");
 	const [token, setToken] = useState(null);
+	const [filter, setFilter] = useState("all genre");
+
 	const authors = useQuery(GET_AUTHORS);
-	const books = useQuery(GET_BOOKS);
+	const books = useQuery(GET_BOOKS, {
+		onError: (error) => {
+			console.error(error.graphQLErrors[0].message);
+		},
+		variables: { genre: filter === "all genre" ? null : filter },
+		update: (cache, response) => {
+			cache.updateQuery({ query: GET_BOOKS }, () => {
+				return {
+					allBooks: response.data.allBooks,
+				};
+			});
+		},
+	});
 	const client = useApolloClient();
 
 	const logout = () => {
@@ -41,7 +55,7 @@ const App = () => {
 
 			<Authors show={page === "authors"} authors={authors} />
 
-			<Books show={page === "books"} books={books} />
+			<Books show={page === "books"} books={books} setFilter={setFilter} />
 
 			<NewBook show={page === "add"} />
 

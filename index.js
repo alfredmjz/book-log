@@ -191,7 +191,6 @@ const resolvers = {
 			return response;
 		},
 		me: (root, args, context) => {
-			console.log(context);
 			return context.currentUser;
 		},
 	},
@@ -214,9 +213,9 @@ const resolvers = {
 				throw new AuthenticationError("not authenticated");
 			}
 
-			if (args.name.length <= 3) {
+			if (args.author.length <= 3) {
 				throw new UserInputError("Author name must be more than 3 characters", {
-					invalidArgs: args.name,
+					invalidArgs: args.author,
 				});
 			} else if (args.published / 1000 < 1 || args.setBornTo / 1000 > 9) {
 				throw new UserInputError("Published year must be exactly 4 digits", {

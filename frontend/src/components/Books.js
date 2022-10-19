@@ -1,3 +1,5 @@
+import FilterGenre from "./FilterGenre";
+
 const Books = (props) => {
 	if (!props.show) {
 		return null;
@@ -14,12 +16,12 @@ const Books = (props) => {
 			<table>
 				<tbody>
 					<tr>
-						<th></th>
+						<th>title</th>
 						<th>author</th>
 						<th>published</th>
 					</tr>
 					{books.map((a) => (
-						<tr key={a.title}>
+						<tr key={a.id}>
 							<td>{a.title}</td>
 							<td>{a.author.name}</td>
 							<td>{a.published}</td>
@@ -27,6 +29,7 @@ const Books = (props) => {
 					))}
 				</tbody>
 			</table>
+			<FilterGenre setFilter={props.setFilter} />
 		</div>
 	);
 };
