@@ -17,7 +17,7 @@ const NewBook = (props) => {
 			},
 		}
 	);
-	console.log(result);
+
 	useEffect(() => {
 		if (result.data && result.data.addBook === null) {
 			console.log("Book not added");
