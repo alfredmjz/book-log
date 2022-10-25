@@ -1,31 +1,32 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { LOGIN } from "../query";
 
 const LoginForm = (props) => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
-
-	const [login, result] = useMutation(LOGIN, {
+	const [login] = useMutation(LOGIN, {
 		onError: (error) => {
 			console.error(error.graphQLErrors[0].message);
 		},
-	});
-
-	useEffect(() => {
-		if (result.data) {
-			const token = result.data.login.value;
-			props.setToken(token);
+		onCompleted: ({ login }) => {
+			const token = login.value;
 			localStorage.setItem("booklog-user-token", token);
-		}
-	}, [result.data]); // eslint-disable-line
+			props.setToken(token);
+		},
+	});
 
 	if (!props.show) {
 		return null;
 	}
 	const submit = async (event) => {
 		event.preventDefault();
-		login({ variables: { username, password } });
+		login({
+			variables: {
+				username: username.length > 0 ? username : undefined,
+				password: password.length > 0 ? password : undefined,
+			},
+		});
 		props.setPage("authors");
 	};
 

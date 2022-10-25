@@ -5,11 +5,15 @@ import NewBook from "./components/NewBook";
 import { useApolloClient, useQuery } from "@apollo/client";
 import { GET_AUTHORS, GET_BOOKS } from "./query";
 import LoginForm from "./components/LoginForm";
+import Recommendations from "./components/Recommendations";
 
 const App = () => {
 	const [page, setPage] = useState("authors");
 	const [token, setToken] = useState(null);
 	const [filter, setFilter] = useState("all genre");
+
+	const client = useApolloClient();
+	console.log(token, localStorage.getItem("booklog-user-token"));
 
 	const authors = useQuery(GET_AUTHORS);
 	const books = useQuery(GET_BOOKS, {
@@ -25,10 +29,10 @@ const App = () => {
 			});
 		},
 	});
-	const client = useApolloClient();
 
 	const logout = () => {
 		setToken(null);
+		setPage("authors");
 		localStorage.clear();
 		client.resetStore();
 	};
@@ -38,11 +42,21 @@ const App = () => {
 			return (
 				<>
 					<button onClick={() => setPage("add")}>add book</button>
+
+					<button onClick={() => setPage("recommend")}>recommendations</button>
+
 					<button onClick={logout}>logout</button>
+					<NewBook show={page === "add"} />
+					<Recommendations show={page === "recommend"} />
 				</>
 			);
 		}
-		return <button onClick={() => setPage("login")}>login</button>;
+		return (
+			<>
+				<button onClick={() => setPage("login")}>login</button>
+				<LoginForm show={page === "login"} setToken={setToken} setPage={setPage} />
+			</>
+		);
 	};
 
 	return (
@@ -56,10 +70,6 @@ const App = () => {
 			<Authors show={page === "authors"} authors={authors} />
 
 			<Books show={page === "books"} books={books} setFilter={setFilter} />
-
-			<NewBook show={page === "add"} />
-
-			<LoginForm show={page === "login"} setToken={setToken} setPage={setPage} />
 		</div>
 	);
 };
