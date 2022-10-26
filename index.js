@@ -38,6 +38,7 @@ const start = async () => {
 		server: httpServer,
 		path: "/",
 	});
+
 	const serverCleanup = useServer({ schema }, wsServer);
 
 	const server = new ApolloServer({

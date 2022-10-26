@@ -1,11 +1,13 @@
+import { useQuery, useSubscription, useApolloClient } from "@apollo/client";
 import { useState } from "react";
+
 import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
-import { useApolloClient, useQuery } from "@apollo/client";
-import { GET_AUTHORS, GET_BOOKS } from "./query";
 import LoginForm from "./components/LoginForm";
 import Recommendations from "./components/Recommendations";
+
+import { BOOK_ADDED, GET_AUTHORS, GET_BOOKS } from "./query";
 
 const App = () => {
 	const [page, setPage] = useState("authors");
@@ -13,8 +15,6 @@ const App = () => {
 	const [filter, setFilter] = useState("all genre");
 
 	const client = useApolloClient();
-	console.log(token, localStorage.getItem("booklog-user-token"));
-
 	const authors = useQuery(GET_AUTHORS);
 	const books = useQuery(GET_BOOKS, {
 		onError: (error) => {
@@ -27,6 +27,13 @@ const App = () => {
 					allBooks: response.data.allBooks,
 				};
 			});
+		},
+	});
+
+	useSubscription(BOOK_ADDED, {
+		onData: ({ data }) => {
+			const update = data.data.bookAdded;
+			window.alert(`${update.title} by ${update.author.name} has been added`);
 		},
 	});
 
