@@ -9,6 +9,25 @@ import Recommendations from "./components/Recommendations";
 
 import { BOOK_ADDED, GET_AUTHORS, GET_BOOKS } from "./query";
 
+// function that takes care of manipulating cache
+export const updateCache = (cache, query, update) => {
+	// helper that is used to eliminate saving same person twice
+	const uniqByName = (a) => {
+		let seen = new Set();
+		return a.filter((item) => {
+			let k = item.name;
+			return seen.has(k) ? false : seen.add(k);
+		});
+	};
+	console.log(update);
+	cache.updateQuery(query, (data) => {
+		console.log(query, data);
+		return {
+			allBooks: uniqByName(data.allBooks.concat(update)),
+		};
+	});
+};
+
 const App = () => {
 	const [page, setPage] = useState("authors");
 	const [token, setToken] = useState(null);
@@ -31,9 +50,11 @@ const App = () => {
 	});
 
 	useSubscription(BOOK_ADDED, {
-		onData: ({ data }) => {
-			const update = data.data.bookAdded;
-			window.alert(`${update.title} by ${update.author.name} has been added`);
+		onData: ({ data, client }) => {
+			console.log(data);
+			const addedBook = data.data.bookAdded;
+			window.alert(`${addedBook.title} by ${addedBook.author.name} has been added`);
+			updateCache(client.cache, { query: GET_BOOKS }, addedBook);
 		},
 	});
 
