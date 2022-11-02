@@ -11,12 +11,8 @@ const JWT_SECRET = "NEED_HERE_A_SECRET_KEY";
 
 const resolvers = {
 	Query: {
-		bookCount: async () => {
-			const returnedBooks = await Book.find({});
-			return returnedBooks.length;
-		},
 		authorCount: async () => {
-			const returnedAuthors = await Author.find({});
+			const returnedAuthors = await Author.find({}).populate("bookCount");
 			return returnedAuthors.length;
 		},
 		allBooks: async (root, args) => {

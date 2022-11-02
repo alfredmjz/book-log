@@ -9,9 +9,7 @@ import Recommendations from "./components/Recommendations";
 
 import { BOOK_ADDED, GET_AUTHORS, GET_BOOKS } from "./query";
 
-// function that takes care of manipulating cache
-export const updateCache = (cache, query, update) => {
-	// helper that is used to eliminate saving same person twice
+export const updateCache = (cache, query, newData) => {
 	const uniqByName = (a) => {
 		let seen = new Set();
 		return a.filter((item) => {
@@ -19,11 +17,10 @@ export const updateCache = (cache, query, update) => {
 			return seen.has(k) ? false : seen.add(k);
 		});
 	};
-	console.log(update);
+
 	cache.updateQuery(query, (data) => {
-		console.log(query, data);
 		return {
-			allBooks: uniqByName(data.allBooks.concat(update)),
+			allBooks: uniqByName(data.allBooks.concat(newData)),
 		};
 	});
 };
@@ -40,18 +37,10 @@ const App = () => {
 			console.error(error.graphQLErrors[0].message);
 		},
 		variables: { genre: filter === "all genre" ? null : filter },
-		update: (cache, response) => {
-			cache.updateQuery({ query: GET_BOOKS }, () => {
-				return {
-					allBooks: response.data.allBooks,
-				};
-			});
-		},
 	});
 
 	useSubscription(BOOK_ADDED, {
-		onData: ({ data, client }) => {
-			console.log(data);
+		onData: ({ client, data }) => {
 			const addedBook = data.data.bookAdded;
 			window.alert(`${addedBook.title} by ${addedBook.author.name} has been added`);
 			updateCache(client.cache, { query: GET_BOOKS }, addedBook);

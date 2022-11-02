@@ -20,6 +20,7 @@
 	"homepage": "https://github.com/alfredmjz/book-log#readme",
 	"dependencies": {
 		"@graphql-tools/schema": "^9.0.4",
+		"apollo-link-context": "^1.0.20",
 		"apollo-server": "^3.10.2",
 		"apollo-server-core": "^3.10.3",
 		"apollo-server-express": "^3.10.3",
